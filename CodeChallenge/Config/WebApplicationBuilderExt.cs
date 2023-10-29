@@ -13,7 +13,9 @@ namespace CodeChallenge.Config
         {
             builder.Services.AddDbContext<EmployeeContext>(options =>
             {
-                options.UseInMemoryDatabase(DB_NAME);
+                options
+                    .UseLazyLoadingProxies() // Used to enable recursive loading of Employee.DirectReports
+                    .UseInMemoryDatabase(DB_NAME);
             });
         }
     }

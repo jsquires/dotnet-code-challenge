@@ -1,6 +1,7 @@
 ﻿using System;
 
 using CodeChallenge.Data;
+using CodeChallenge.Models;
 using CodeChallenge.Repositories;
 using CodeChallenge.Services;
 
@@ -29,7 +30,16 @@ namespace CodeChallenge.Config
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                SeedEmployeeDB();
+
+                // Retrieve the EmployeeContext defined earlier in the UseEmployeeDB function
+                var serviceScopeFactory = (IServiceScopeFactory)app.Services.GetService(typeof(IServiceScopeFactory));
+
+                using (var scope = serviceScopeFactory.CreateScope())
+                {
+                    var services = scope.ServiceProvider;
+                    var context = services.GetRequiredService<EmployeeContext>();
+                    SeedEmployeeDB(context);
+                }                
             }
 
             app.UseAuthorization();
@@ -44,16 +54,14 @@ namespace CodeChallenge.Config
 
             services.AddScoped<IEmployeeService, EmployeeService>();
             services.AddScoped<IEmployeeRepository, EmployeeRespository>();
+            services.AddScoped<ICompensationRepository, CompensationRepository>();
 
             services.AddControllers();
         }
 
-        private void SeedEmployeeDB()
+        private void SeedEmployeeDB(EmployeeContext context)
         {
-            new EmployeeDataSeeder(
-                new EmployeeContext(
-                    new DbContextOptionsBuilder<EmployeeContext>().UseInMemoryDatabase("EmployeeDB").Options
-            )).Seed().Wait();
+            new EmployeeDataSeeder(context).Seed().Wait();
         }
     }
 }

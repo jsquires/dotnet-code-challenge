@@ -11,17 +11,19 @@ namespace CodeChallenge.Services
     public class EmployeeService : IEmployeeService
     {
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly ICompensationRepository _compensationRepository;
         private readonly ILogger<EmployeeService> _logger;
 
-        public EmployeeService(ILogger<EmployeeService> logger, IEmployeeRepository employeeRepository)
+        public EmployeeService(ILogger<EmployeeService> logger, IEmployeeRepository employeeRepository, ICompensationRepository compensationRepository)
         {
             _employeeRepository = employeeRepository;
+            _compensationRepository = compensationRepository;
             _logger = logger;
         }
 
         public Employee Create(Employee employee)
         {
-            if(employee != null)
+            if (employee != null)
             {
                 _employeeRepository.Add(employee);
                 _employeeRepository.SaveAsync().Wait();
@@ -32,7 +34,7 @@ namespace CodeChallenge.Services
 
         public Employee GetById(string id)
         {
-            if(!String.IsNullOrEmpty(id))
+            if (!String.IsNullOrEmpty(id))
             {
                 return _employeeRepository.GetById(id);
             }
@@ -42,7 +44,7 @@ namespace CodeChallenge.Services
 
         public Employee Replace(Employee originalEmployee, Employee newEmployee)
         {
-            if(originalEmployee != null)
+            if (originalEmployee != null)
             {
                 _employeeRepository.Remove(originalEmployee);
                 if (newEmployee != null)
@@ -58,6 +60,33 @@ namespace CodeChallenge.Services
             }
 
             return newEmployee;
+        }
+
+        public Compensation GetCompensationByEmployeeId(string employeeId)
+        {
+            if (!String.IsNullOrEmpty(employeeId))
+            {
+                var compensation = _compensationRepository.GetByEmployeeId(employeeId);
+                return compensation;
+            }
+
+            return null;
+        }
+
+        public Compensation CreateCompensation(Compensation compensation)
+        {
+            if (compensation != null)
+            {
+                if (compensation.Id == null)
+                {
+                    compensation.Id = Guid.NewGuid().ToString();
+                }
+
+                _compensationRepository.Add(compensation);
+                _compensationRepository.SaveAsync().Wait();
+            }
+
+            return compensation;
         }
     }
 }

@@ -8,27 +8,27 @@ namespace CodeCodeChallenge.Tests.Integration.Helpers
 {
     public class TestServer : IDisposable, IAsyncDisposable
     {
-        private WebApplicationFactory<Program> applicationFactory;
+        public WebApplicationFactory<Program> ApplicationFactory { get; init; }
 
         public TestServer()
         {
-            applicationFactory = new WebApplicationFactory<Program>();
+            ApplicationFactory = new WebApplicationFactory<Program>();
         }
 
         public HttpClient NewClient()
         {
-            return applicationFactory.CreateClient();
+            return ApplicationFactory.CreateClient();
         }
 
 
         public ValueTask DisposeAsync()
         {
-            return ((IAsyncDisposable)applicationFactory).DisposeAsync();
+            return ((IAsyncDisposable)ApplicationFactory).DisposeAsync();
         }
 
         public void Dispose()
         {
-            ((IDisposable)applicationFactory).Dispose();
+            ((IDisposable)ApplicationFactory).Dispose();
         }
     }
 }
